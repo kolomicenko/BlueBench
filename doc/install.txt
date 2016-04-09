@@ -1,0 +1,7 @@
+For the installation of BlueBench and its successful execution, at least these steps must be performed:
+
+1) necessary JRE 1.7 and ant
+2) installation of all standalone DB engines (MongoDB, MySQL, InfiniteGraph). The engines must be running.
+3) the input graph files must be generated and placed in the appropriate folder (data/datasets/)
+4) finally running run.sh for the compilation and execution of BlueBench (abort.sh for aborting the execution)
+5) progress of the execution is output in the 'log' file. Benchmark results are in data/results

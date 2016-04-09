@@ -1,0 +1,125 @@
+<project name="graphdb-bench" default="run" basedir=".">
+	<description>
+        
+        </description>
+
+	<property file="build.properties" />
+	<property name="build" location="bin" />
+	<property name="dist" location="out" />
+	<property name="doc" location="doc" />
+	<property name="lib" location="lib" />
+	<property name="jarfile" value="${dist}/${jarFileName}" />
+	<property environment="env" />
+
+        <property name="src" location="src/java" />
+
+
+	<target name="init">
+		<tstamp />
+
+		<mkdir dir="${build}" />
+		<mkdir dir="${dist}" />
+
+	</target>
+
+	<target name="compile" depends="init" description="compile the source ">
+		<javac srcdir="${src}" destdir="${build}" debug="true" includeantruntime="false" target="1.7">
+			<classpath>
+				<pathelement path="${classpath}" />
+				<fileset dir="lib">
+					<include name="**/*.jar" />
+				</fileset>
+
+				<pathelement location="classes" />
+			</classpath>
+		</javac>
+		<copy todir="${build}/">
+			<fileset dir="${src}">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution">
+		<!-- Create the distribution directory -->
+		<delete file="${jarfile}" />
+		<jar jarfile="${jarfile}" basedir="${build}">
+			<include name="${src}/**/*.properties" />
+			<include name="${src}/**/*.xml" />
+			<include name="**/*" />
+			<fileset dir=".">
+				<include name="config/*" />
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}" />
+		<!-- delete dir="${dist}"/ -->
+	</target>
+
+	<target name="deploy" depends="dist" description="deploy the project">
+		<copy file="out/${jarFileName}" todir="${deployPath}/lib" />
+		<copy file="etc/wikisem.properties" todir="${deployPath}/etc" />
+
+	</target>
+
+        <target name="run" depends="dist" description="run the main class">
+            <java classname="${mainClassName}">
+                <sysproperty key="java.library.path" path="${java.library.path}:${igLibPath}"/>
+                <arg value="-Xmx12g" />
+                <arg value="-Xms12g" />
+                <arg value="-Dfile.encoding=utf-8" />
+                <!--<arg value="-XX : +UseConcMarkSweepGC" />
+                <arg value="-XX : +UseParNewGC" />-->
+                <arg value="-server" />
+                <classpath>
+                    <pathelement path="${classpath}" />
+                    <fileset dir="lib">
+                        <include name="**/*.jar" />
+                    </fileset>
+
+                    <pathelement location="out/${jarFileName}" />
+                </classpath>
+            </java>
+        </target>
+
+	<target name="doc">
+		<echo level="warning" message="Creating Docs..." />
+		<mkdir dir="${doc}/api" />
+		<javadoc author="true" destdir="${doc}/api" sourcepath="${src}" private="true" version="true" windowtitle="Admire-floodapp-GribMetaPump " packagenames="admire.*">
+		</javadoc>
+	</target>
+        
+        <target name="ydoc">
+                <property name="ps" value="${path.separator}"/>
+                <property name="ydoc-folder" value="/home/v/apps/yworks-uml-doclet-3.0_02-jdk1.5/"/>
+
+                <javadoc
+                        source="1.7"
+                        destdir="doc/api"
+                        additionalparam="-breakiterator">
+                        <packageset dir="src/java">
+                            <include name="**"/>
+                        </packageset>
+                        <doclet
+                                name="ydoc.doclets.YStandard"
+                                path="${ydoc-folder}lib/ydoc.jar${ps}${ydoc-folder}resources${ps}${ydoc-folder}doc">
+                                <param name="-author"/>
+                                <param name="-generic"/>
+                                <param name="-umlautogen"/>
+                                <param name="-filterpath" value="./lib/ydoc.jar"/>
+                                <param name="-filter"     value="ydoc.filters.ExcludeFilter"/>
+                                <param name="-tag" value="y.precondition"/>
+                                <param name="-tag" value="y.postcondition"/>
+                                <param name="-tag" value="y.complexity"/>
+                                <param name="-tag" value="param"/>
+                                <param name="-tag" value="return"/>
+                                <param name="-tag" value="see"/>
+                                <param name="-tag" value="y.uml"/>
+                        </doclet>
+                </javadoc>
+        </target>
+
+</project>
